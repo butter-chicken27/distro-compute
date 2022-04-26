@@ -4,6 +4,8 @@ import math
 import threading
 import time
 import sys
+import pickle
+import numpy as np
 
 ADDR_SIZE = 1024
 ARR_SIZE = 100
@@ -39,7 +41,6 @@ print('connecting to %s port %s' % dist_address)
 sock.connect(dist_address)
 
 try:
-    
     amount_received = 0
     amount_expected = ARR_SIZE
     response_message = None
@@ -47,13 +48,15 @@ try:
     while amount_received < amount_expected:
         # Receive array
         data = sock.recv(ARR_SIZE)
-        amount_received += len(data)
+        (opcode, array) = pickle.loads(data)
+        amount_received += len(array)
         
-        print('received "%s"' % data)
+        print('received "%s"' % array)
         
         # Send response (currently max of received array)
+        if opcode == "MAX":
+            response_message = np.amax(array)
         # success message
-        response_message = max(data)
         print('sending "%s"' % response_message)
         sock.sendall(response_message)
 
