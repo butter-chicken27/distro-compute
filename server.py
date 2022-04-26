@@ -29,15 +29,13 @@ while True:
     
     try:
         conn, addr = main_socket.accept()
-        print(addr)
         conn_type = int(conn.recv(1024).decode())
         if conn_type == 0:
             conn.send(str(DISTRIBUTION_PORT).encode())
             conn.close()
         else:
-            opcode = conn.recv(1024).decode()
-            print(opcode)
-            data = pickle.loads(conn.recv(4096))
+            client_input = conn.recv(4096)
+            (opcode,data) = pickle.loads(client_input)
 
             client_conns[addr] = conn
             work_queue.put((addr,opcode,data))
