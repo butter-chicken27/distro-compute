@@ -13,7 +13,7 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 # Connect the socket to the port where the server is listening
 server_address = ('localhost', 10000) # edit server address here
-print >> sys.stderr, 'connecting to %s port %s' % server_address
+print('connecting to %s port %s' % server_address)
 sock.connect(server_address)
 
 try:
@@ -21,21 +21,21 @@ try:
     # message = 'This is the message.  It will be repeated.'
     # success message
     message = 1
-    print >> sys.stderr, 'sending "%s"' % message
+    print('sending "%s"' % message)
     sock.sendall(message)
 
     # Receive the worker distribution thread address
     dist_address = sock.recv(ADDR_SIZE)
-    print >> sys.stderr, 'received "%s"' % dist_address
+    print('received "%s"' % dist_address)
 
 finally:
-    print >> sys.stderr, 'closing socket'
+    print('closing socket')
     sock.close()
 
 
 # connect to the distributer thread
 # Connect the socket to the port where the server is listening
-print >> sys.stderr, 'connecting to %s port %s' % dist_address
+print('connecting to %s port %s' % dist_address)
 sock.connect(dist_address)
 
 try:
@@ -49,14 +49,14 @@ try:
         data = sock.recv(ARR_SIZE)
         amount_received += len(data)
         
-        print >> sys.stderr, 'received "%s"' % data
+        print('received "%s"' % data)
         
         # Send response (currently max of received array)
         # success message
         response_message = max(data)
-        print >> sys.stderr, 'sending "%s"' % response_message
+        print('sending "%s"' % response_message)
         sock.sendall(response_message)
 
 finally:
-    print >> sys.stderr, 'closing socket'
+    print('closing socket')
     sock.close()
