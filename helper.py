@@ -1,65 +1,43 @@
 import socket 
-import random
-import math
-import threading
-import time
-import sys
 import pickle
 import numpy as np
+from server import HELPER_CONN_TYPE, MAIN_PORT
 
-ADDR_SIZE = 1024
-ARR_SIZE = 100
+SERVER_IP = 'localhost'
 
 # Create a TCP/IP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 # Connect the socket to the port where the server is listening
-server_address = ('localhost', 10000) # edit server address here
-print('connecting to %s port %s' % server_address)
+server_address = (SERVER_IP, MAIN_PORT) # edit server address here
 sock.connect(server_address)
 
 try:
-    # Send data
-    # message = 'This is the message.  It will be repeated.'
-    # success message
-    message = 1
-    print('sending "%s"' % message)
-    sock.sendall(message)
-
-    # Receive the worker distribution thread address
-    dist_address = sock.recv(ADDR_SIZE)
-    print('received "%s"' % dist_address)
-
+    message = HELPER_CONN_TYPE
+    sock.sendall(str(message).encode())
+    # Receive the worker distribution thread port number
+    DIST_PORT_NUMBER = int(sock.recv(4096).decode())
 finally:
-    print('closing socket')
     sock.close()
 
-
-# connect to the distributer thread
+# connect to the work distribution thread
 # Connect the socket to the port where the server is listening
-print('connecting to %s port %s' % dist_address)
-sock.connect(dist_address)
+distribution_thread_address = (SERVER_IP,DIST_PORT_NUMBER)
+sock = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+sock.connect(distribution_thread_address)
+sock.settimeout(0.01)
+print('Connected to Work Distribution Server and listening for operations...')
 
-try:
-    amount_received = 0
-    amount_expected = ARR_SIZE
-    response_message = None
-    
-    while amount_received < amount_expected:
+while True:
+    try:
         # Receive array
-        data = sock.recv(ARR_SIZE)
+        data = sock.recv(4096)
         (opcode, array) = pickle.loads(data)
-        amount_received += len(array)
-        
-        print('received "%s"' % array)
         
         # Send response (currently max of received array)
         if opcode == "MAX":
             response_message = np.amax(array)
-        # success message
-        print('sending "%s"' % response_message)
-        sock.sendall(response_message)
-
-finally:
-    print('closing socket')
-    sock.close()
+        
+        sock.sendall(pickle.dumps(response_message))
+    except socket.timeout:
+        continue

@@ -6,6 +6,8 @@ import threading
 
 DISTRIBUTION_PORT = 1556
 MAIN_PORT = 1235
+CLIENT_CONN_TYPE = 0
+HELPER_CONN_TYPE = 1
 
 work_queue = queue.Queue()
 result_queue = queue.Queue()
@@ -17,6 +19,7 @@ def aggregate_results(opcode, results):
         raise NotImplementedError
 
 def distribution_thread():
+    print(f'Work Distribution Thread running on port {DISTRIBUTION_PORT}...')
     distribution_socket = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
     distribution_socket.bind(('localhost',DISTRIBUTION_PORT))
     distribution_socket.listen(100)
@@ -50,6 +53,7 @@ def distribution_thread():
         
 
 def main_thread():
+    print(f'Main Thread running on port {MAIN_PORT}...')
     main_socket = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
     main_socket.bind(('localhost',MAIN_PORT))
     main_socket.listen(20)
@@ -66,7 +70,7 @@ def main_thread():
         try:
             conn, addr = main_socket.accept()
             conn_type = int(conn.recv(1024).decode())
-            if conn_type == 0:
+            if conn_type == HELPER_CONN_TYPE:
                 conn.send(str(DISTRIBUTION_PORT).encode())
                 conn.close()
             else:
