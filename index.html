@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>Distro-Compute</title>
+		<meta name="description" content="" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<link
+			rel="stylesheet"
+			href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
+			integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+			crossorigin="anonymous"
+		/>
+	</head>
+	<body>
+		<div class="d-flex p-4" style="justify-content: center">
+			<h1>Input for Distributed Computation</h1>
+		</div>
+		<div class="d-flex p-3" style="justify-content: center">
+			<form>
+				<div class="form-group">
+					<label for="opcode">Op-Code</label>
+					<input
+						type="text"
+						class="form-control"
+						id="opcode"
+						placeholder="Op-Code"
+					/>
+				</div>
+				<div class="form-group">
+					<label for="input-array">Input Array</label>
+					<input
+						type="text"
+						class="form-control"
+						id="input-array"
+						placeholder="[1, 2, 3]"
+					/>
+				</div>
+				<button type="submit" class="btn btn-default" id="submit-btn">
+					Submit
+				</button>
+			</form>
+		</div>
+		<div
+			class="d-flex p-4"
+			style="
+				justify-content: center;
+				flex-direction: column;
+				align-items: center;
+			"
+		>
+			<h6 id="result-text">Result:</h6>
+			<br />
+			<h6 id="time-elapsed-text">Time Elapsed:</h6>
+		</div>
+	</body>
+
+	<script>
+		console.log('Hi');
+		const result_textbox = document.getElementById('result-text');
+		const time_elapsed_textbox = document.getElementById('time-elapsed-text');
+
+		const opcode_input = document.getElementById('opcode');
+		const array_input = document.getElementById('input-array');
+
+		document.getElementById('submit-btn').addEventListener('click', event => {
+			event.preventDefault();
+			const opcode_val = opcode_input.value;
+			const input_array_text = array_input.value;
+			const input_array = input_array_text
+				.substring(1, input_array_text.length - 1)
+				.split(',')
+				.map(Number);
+
+			//Make api call to the function, and return the output
+			request_body = {
+				opcode: opcode_val,
+				data: input_array,
+			};
+			console.log(JSON.stringify(request_body));
+			const request_options = {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(request_body),
+			};
+
+			const startTime = Date.now();
+			fetch('http://localhost:5000/compute', request_options)
+				.then(res => res.json())
+				.then(res => {
+					const endTime = Date.now();
+					result_textbox.innerText = `Result: ${res['result']}`;
+					time_elapsed_textbox.innerText = `Time Elapsed: ${
+						endTime - startTime
+					} milliseconds`;
+				});
+		});
+	</script>
+</html>
