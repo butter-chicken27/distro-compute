@@ -37,7 +37,8 @@ while True:
         # Send response (currently max of received array)
         if opcode == "MAX":
             response_message = np.amax(array)
-        
+        elif opcode == "SUM":
+            response_message = np.sum(array)
         sock.sendall(pickle.dumps(response_message))
     except socket.timeout:
         continue

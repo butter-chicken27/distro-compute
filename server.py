@@ -15,6 +15,8 @@ result_queue = queue.Queue()
 def aggregate_results(opcode, results):
     if opcode == 'MAX':
         return np.max(results)
+    elif opcode == 'SUM':
+        return np.sum(results)
     else:
         raise NotImplementedError
 
