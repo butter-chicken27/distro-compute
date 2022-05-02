@@ -15,6 +15,27 @@ result_queue = queue.Queue()
 def aggregate_results(opcode, results):
     if opcode == 'MAX':
         return np.max(results)
+    elif opcode == 'SUM':
+        return np.sum(results)
+    elif opcode == 'SORT':
+        final_array = []
+        num_arrays = len(results)
+        indices = [0 for _ in range(num_arrays)]
+        count = 0
+        while count < num_arrays:
+            index = -1
+            minimum = np.inf
+            for i in num_arrays:
+                if indices[i] == len(results[i]):
+                    continue
+                if results[i][indices[i]] < minimum:
+                    index = i
+                    minimum = results[i][indices[i]]
+            final_array.append(minimum)
+            indices[index] += 1
+            if indices[index] == len(results[index]):
+                count += 1
+        return final_array
     else:
         raise NotImplementedError
 
